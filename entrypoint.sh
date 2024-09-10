@@ -50,7 +50,6 @@ init_file_conf smartdns.conf
 init_file_conf mosdns.yaml
 init_file_conf mosdns_load_rules.yaml
 init_file_conf mosdns_forward.yaml
-init_file_conf adguardhome.yaml
 
 
 # /nestingdns/etc/site 初始化
@@ -81,7 +80,6 @@ if [ ! -f /nestingdns/work/mosdns/cache.dump ]; then
     echo `date "+%Y/%m/%d %H:%M:%S"`' [info] init: mosdns cache file'
     cp /nestingdns/default/cache/cache.dump /nestingdns/work/mosdns/
 fi
-init_dir /nestingdns/work/adguardhome
 
 
 # 设置时区及定时任务
@@ -105,6 +103,5 @@ nohup /nestingdns/bin/mosdns start -c /nestingdns/etc/conf/mosdns.yaml -d /nesti
 # 启动定时任务 crond，定时任务包含重启mosdns，放在 mosdns 后启动
 crond
 
-# 启动 adguardhome
-echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start adguardhome: '`/nestingdns/bin/adguardhome --version` | sed 's/AdGuard Home, version //'
-/nestingdns/bin/adguardhome --no-check-update -c /nestingdns/etc/conf/adguardhome.yaml -w /nestingdns/work/adguardhome
+# 保持脚本持续运行，防止容器退出
+sleep infinity

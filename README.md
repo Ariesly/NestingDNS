@@ -1,11 +1,11 @@
 # NestingDNS
-DNS 三大神器 [AdGuardHome](https://github.com/AdguardTeam/AdGuardHome)、[MosDNS](https://github.com/IrineSistiana/mosdns)、[SmartDNS](https://github.com/pymumu/smartdns)，该如何选择？  
+DNS 三大神器 ~~[~~AdGuardHome~~](https://github.com/AdguardTeam/AdGuardHome)、~~[MosDNS](https://github.com/IrineSistiana/mosdns)、[SmartDNS](https://github.com/pymumu/smartdns)，该如何选择？  
 不，小孩子才做选择，我全都要。  
 于是有了这个项目，套娃使用三大神器，试图找到一套最佳实践。
 
 # DNS 解析流程
-1. AdGuardHome 为第一层 DNS ，作为整体入口，监听端口 4053。
-- 负责去广告。
+1. ~~AdGuardHome 为第一层 DNS ，作为整体入口，监听端口 4053。~~
+- ~~负责去广告。~~
 2. MosDNS 为第二层 DNS，监听端口 5053。
 - 负责分流。
     - 直连：待解析域名在 [direct-list.txt](https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/direct-list.txt)、[apple-cn.txt](https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/apple-cn.txt)、[google-cn.txt](https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/google-cn.txt)、force-cn.txt(自定义不走代理的域名)内，通过 SmartDNS 的 mainland 组进行解析。
@@ -40,9 +40,9 @@ docker run -d \
 docker run -d \
     --restart unless-stopped \
     --name nestingdns \
-    -p 3000:3000 \      # AdGuardHome web 页面
-    -p 4053:4053 \      # AdGuardHome NDS
-    -p 4053:4053/udp \  # AdGuardHome NDS
+    # -p 3000:3000 \      # AdGuardHome web 页面
+    # -p 4053:4053 \      # AdGuardHome NDS
+    # -p 4053:4053/udp \  # AdGuardHome NDS
     -p 5053:5053 \      # MosDNS NDS
     -p 5053:5053/udp \  # MosDNS NDS
     -p 6053:6053 \      # SmartDNS NDS
@@ -61,12 +61,12 @@ docker run -d \
 
 # 配置说明
 ***默认已全部关闭 IPv6 支持。***
-## AdGuardHome
-AdGuardHome 配置文件为 `$HOME/nestingdns/etc/conf/adguardhome.yaml`。
-- ***默认已配置好，一般无需调整***。
-- 可通过 3000 端口的 web 进行配置，默认账号 root 密码 password。
-- 默认开启缓存，并关闭乐观缓存，AdGuardHome 仅作临时缓存。主要缓存功能由 SmartDNS 负责。
-- 默认内置去广告规则 [AdBlock DNS Filters](https://github.com/217heidai/adblockfilters)。
+## ~~AdGuardHome~~
+~~AdGuardHome 配置文件为 `$HOME/nestingdns/etc/conf/adguardhome.yaml`。~~
+- ~~***默认已配置好，一般无需调整***。~~
+- ~~可通过 3000 端口的 web 进行配置，默认账号 root 密码 password。~~
+- ~~默认开启缓存，并关闭乐观缓存，AdGuardHome 仅作临时缓存。主要缓存功能由 SmartDNS 负责。~~
+- ~~默认内置去广告规则 [~~AdBlock DNS Filters~~](https://github.com/217heidai/adblockfilters)。~~
 
 ## MosDNS
 MosDNS 配置文件为 `$HOME/nestingdns/etc/conf/mosdns.yaml`、`$HOME/nestingdns/etc/conf/mosdns_load_rules.yaml`、`$HOME/nestingdns/etc/conf/mosdns_forward.yaml`。

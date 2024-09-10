@@ -6,11 +6,7 @@ LABEL previous-stage=smartdns-builder
 FROM irinesistiana/mosdns:latest as mosdns-builder
 LABEL previous-stage=mosdns-builder
 
-# adguardhome
-FROM adguard/adguardhome:latest as adguardhome-builder
-LABEL previous-stage=adguardhome-builder
-
-# 合并smartdns、mosdns、adguardhome
+# 合并smartdns、mosdns
 FROM alpine:latest as nestingdns-builder
 LABEL previous-stage=nestingdns-builder
 
@@ -50,7 +46,6 @@ RUN sed -i "/domain:ping.archlinux.org/d" /nestingdns/default/site/private.txt
 # 拷入可执行文件
 COPY --from=smartdns-builder /usr/sbin/smartdns /nestingdns/bin/smartdns
 COPY --from=mosdns-builder /usr/bin/mosdns /nestingdns/bin/mosdns
-COPY --from=adguardhome-builder /opt/adguardhome/AdGuardHome /nestingdns/bin/adguardhome
 
 # 拷入entrypoint.sh、update.sh
 COPY entrypoint.sh /nestingdns/bin/entrypoint.sh
@@ -78,25 +73,16 @@ COPY --from=nestingdns-builder /nestingdns /nestingdns
 # 添加执行权限
 RUN chmod +x /nestingdns/bin/*
 
-RUN setcap 'cap_net_bind_service=+eip' /nestingdns/bin/adguardhome
-
 # smartdns
 # 6053   : TCP, UDP : DNS
 # 7053   : TCP, UDP : DNS
 # 8053   : TCP, UDP : DNS
 # mosdns
 # 5053   : TCP, UDP : DNS
-# adguardhome
-# 4053   : TCP, UDP : DNS
-# 443    : TCP, UDP : HTTPS, DNS-over-HTTPS (incl. HTTP/3), DNSCrypt (main)
-# 853    : TCP, UDP : DNS-over-TLS, DNS-over-QUIC
-# 3000   : TCP, UDP : HTTP(S) (alt, incl. HTTP/3)
 EXPOSE 6053/tcp 6053/udp \
        7053/tcp 7053/udp \
        8053/tcp 8053/udp \
-       5053/tcp 5053/udp \
-       4053/tcp 4053/udp \
-       3000/tcp 3000/udp
+       5053/tcp 5053/udp
 
 WORKDIR /nestingdns/
 VOLUME ["/nestingdns/etc/", "/nestingdns/work/", "/nestingdns/log/"]

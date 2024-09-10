@@ -14,11 +14,9 @@ jobs:
         run: |
           docker pull pymumu/smartdns:latest
           docker pull irinesistiana/mosdns:latest
-          docker pull adguard/adguardhome:latest
           id_smartdns=$(docker images | grep pymumu/smartdns | awk '{print $3}')
           id_mosdns=$(docker images | grep irinesistiana/mosdns | awk '{print $3}')
-          id_adguardhome=$(docker images | grep adguard/adguardhome | awk '{print $3}')
-          echo "imageid=$id_smartdns-$id_mosdns-$id_adguardhome" >> $GITHUB_OUTPUT
+          echo "imageid=$id_smartdns-$id_mosdns" >> $GITHUB_OUTPUT
 
       - name: Get Cache ImageID
         id: getcacheimageid

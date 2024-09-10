@@ -6,11 +6,7 @@ LABEL previous-stage=smartdns-builder
 FROM irinesistiana/mosdns:latest AS mosdns-builder
 LABEL previous-stage=mosdns-builder
 
-# adguardhome
-FROM adguard/adguardhome:latest AS adguardhome-builder
-LABEL previous-stage=adguardhome-builder
-
-# 合并smartdns、mosdns、adguardhome
+# 合并smartdns、mosdns
 FROM alpine:latest AS nestingdns-builder
 LABEL previous-stage=nestingdns-builder
 
@@ -53,7 +49,6 @@ RUN sed -i "/domain:ping.archlinux.org/d" /nestingdns/default/site/private.txt
 COPY --from=smartdns-builder /usr/local/lib/smartdns /nestingdns/lib/smartdns
 RUN ln -s /nestingdns/lib/smartdns/run-smartdns /nestingdns/bin/smartdns
 COPY --from=mosdns-builder /usr/bin/mosdns /nestingdns/bin/mosdns
-COPY --from=adguardhome-builder /opt/adguardhome/AdGuardHome /nestingdns/bin/adguardhome
 
 # 拷入entrypoint.sh、healthcheck.sh、update.sh
 COPY entrypoint.sh /nestingdns/bin/entrypoint.sh
@@ -83,8 +78,6 @@ RUN sed -i 's#https\?://dl-cdn.alpinelinux.org/alpine#https://mirrors.tuna.tsing
 # 拷入文件
 COPY --from=nestingdns-builder /nestingdns /nestingdns
 
-RUN setcap 'cap_net_bind_service=+eip' /nestingdns/bin/adguardhome
-
 # 设置 healthcheck
 HEALTHCHECK --interval=60s --retries=1 CMD sh /nestingdns/bin/healthcheck.sh
 
@@ -94,17 +87,10 @@ HEALTHCHECK --interval=60s --retries=1 CMD sh /nestingdns/bin/healthcheck.sh
 # 8053   : TCP, UDP : DNS
 # mosdns
 # 5053   : TCP, UDP : DNS
-# adguardhome
-# 4053   : TCP, UDP : DNS
-# 443    : TCP, UDP : HTTPS, DNS-over-HTTPS (incl. HTTP/3), DNSCrypt (main)
-# 853    : TCP, UDP : DNS-over-TLS, DNS-over-QUIC
-# 3000   : TCP, UDP : HTTP(S) (alt, incl. HTTP/3)
 EXPOSE 6053/tcp 6053/udp \
        7053/tcp 7053/udp \
        8053/tcp 8053/udp \
-       5053/tcp 5053/udp \
-       4053/tcp 4053/udp \
-       3000/tcp 3000/udp
+       5053/tcp 5053/udp
 
 WORKDIR /nestingdns/
 VOLUME ["/nestingdns/etc/", "/nestingdns/work/", "/nestingdns/log/"]
